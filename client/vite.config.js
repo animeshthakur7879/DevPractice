@@ -11,7 +11,7 @@ export default defineConfig({
     proxy : {
       '/api' : {
         changeOrigin : true , 
-        target : 'http://localhost:9000' , 
+        target : 'https://devpractice.onrender.com/' , 
         secure : false
       }
     }
