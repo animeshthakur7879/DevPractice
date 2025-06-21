@@ -1,4 +1,5 @@
 import axios from "axios"
+import { api } from "../../../api"
 
 //ADD SNIPPET 
 const addSnippet = async(formData , token) => {
@@ -9,7 +10,7 @@ const addSnippet = async(formData , token) => {
         }
     }
 
-    const response = await axios.post("/api/snippets" , formData ,options)
+    const response = await axios.post(`${api}/snippets` , formData ,options)
     return response.data
 
 }
@@ -22,7 +23,7 @@ const userAllSnippets = async(uid , token) => {
         }
     }
 
-    const response = await axios.get(`/api/snippets/all/${uid}` , options)
+    const response = await axios.get(`${api}/snippets/all/${uid}` , options)
     return response.data
 
 }
@@ -36,7 +37,7 @@ const getSingleSnippet = async(sid , token) => {
         }
     }
 
-    const response = await axios.get(`/api/snippets/${sid}` , options)
+    const response = await axios.get(`${api}/snippets/${sid}` , options)
     return response.data
 
 }
@@ -50,8 +51,8 @@ const updateSnippet = async(formData , sid , token) => {
         }
     }
 
-    const response = await axios.put(`/api/snippets/${sid}` , formData ,  options)
-    console.log(response.data)
+    const response = await axios.put(`${api}/snippets/${sid}` , formData ,  options)
+    return response.data
 
 }
 
@@ -64,7 +65,7 @@ const publicSnippets = async(token) => {
         }
     }
 
-    const response = await axios.get(`/api/snippets` , options)
+    const response = await axios.get(`${api}/snippets` , options)
     return response.data
 
 }
@@ -79,7 +80,7 @@ const removeSnippet = async(sid , token) => {
         }
     }
 
-    const response = await axios.delete(`/api/snippets/${sid}` , options)
+    const response = await axios.delete(`${api}/snippets/${sid}` , options)
     return response.data
 }
 
