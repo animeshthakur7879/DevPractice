@@ -18,6 +18,13 @@ const loginUser = expressAsyncHandler(async(req , res) => {
             user = User.create({
                 name , email , phoneNumber
             })
+            res.status(200).json({
+            name : user.name , 
+            email : user.email ,
+            phoneNumber : user.phoneNumber , 
+            token : generateToken(user._id) ,
+            id : user._id
+    })
        } catch (error) {
             throw new Error("Error in creating user " , error)
        }
