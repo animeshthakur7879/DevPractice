@@ -15,7 +15,7 @@ const loginUser = expressAsyncHandler(async(req , res) => {
 
     if(!user){
        try {
-            user = User.create({
+            user = await User.create({
                 name , email , phoneNumber
             })
             res.status(200).json({
