@@ -8,6 +8,16 @@ import { getUserSnippet } from '../features/snippets/snippetSlice';
 import { removeSnippet } from '../features/snippets/snippetSlice';
 import { toast } from 'react-toastify';
 
+// Spinner Loader Component
+const SpinnerLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-gray-600 border-t-orange-500 rounded-full animate-spin"></div>
+      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-blue-500 rounded-full animate-spin animation-delay-150"></div>
+    </div>
+  </div>
+);
+
 const DashboardPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
@@ -93,7 +103,7 @@ const DashboardPage = () => {
                   MY SNIPPETS
                 </h1>
                 <p className="text-gray-300 mt-2 text-lg font-medium">
-                  {filteredSnippets.length} snippets loaded
+                  {isLoading ? 'Loading snippets...' : `${filteredSnippets?.length || 0} snippets loaded`}
                 </p>
               </div>
               <button
@@ -129,90 +139,97 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSnippets.map(snippet => (
-              <div
-                key={snippet?._id}
-                className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-2xl border-2 border-gray-700 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-2 hover:border-blue-700/50 hover:bg-gradient-to-br "
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-2xl font-bold text-white truncate leading-tight">
-                      {snippet?.title}
+          {/* Show loader when loading */}
+          {isLoading ? (
+            <SpinnerLoader />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredSnippets?.map(snippet => (
+                  <div
+                    key={snippet?._id}
+                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-2xl border-2 border-gray-700 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-2 hover:border-blue-700/50 hover:bg-gradient-to-br "
+                  >
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <h3 className="text-2xl font-bold text-white truncate leading-tight">
+                          {snippet?.title}
+                        </h3>
+                        {snippet?.isPublic && (
+                          <ExternalLink className="h-5 w-5 text-green-400 flex-shrink-0 ml-2" />
+                        )}
+                      </div>
+                      
+                      <p className="text-gray-300 text-base mb-6 line-clamp-2 leading-relaxed">
+                        {snippet?.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {snippet?.tags?.map(tag => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg border border-blue-400/30"
+                          >
+                            <Tag className="h-3.5 w-3.5 mr-1.5" />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2 text-green-400" />
+                          <span className="font-medium">{new Date(snippet?.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div className="text-xs font-medium">
+                          Updated {new Date(snippet?.updatedAt).toLocaleDateString()}
+                        </div>
+                      </div>
+
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleEdit(snippet._id)}
+                          className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-green-500/30 border border-green-400/20"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                          <span>EDIT</span>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(snippet?._id)}
+                          className="px-4 py-2.5 border-2 border-red-500 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-400 rounded-lg text-sm font-bold transition-all duration-200 shadow-lg hover:shadow-red-500/30"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filteredSnippets?.length === 0 && (
+                <div className="text-center py-16">
+                  <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-12 border-2 border-gray-700 max-w-md mx-auto shadow-2xl">
+                    <Code2 className="h-20 w-20 text-orange-400 mx-auto mb-6" />
+                    <h3 className="text-2xl font-bold text-white mb-3">
+                      NO SNIPPETS FOUND
                     </h3>
-                    {snippet?.isPublic && (
-                      <ExternalLink className="h-5 w-5 text-green-400 flex-shrink-0 ml-2" />
-                    )}
-                  </div>
-                  
-                  <p className="text-gray-300 text-base mb-6 line-clamp-2 leading-relaxed">
-                    {snippet?.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {snippet?.tags?.map(tag => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg border border-blue-400/30"
-                      >
-                        <Tag className="h-3.5 w-3.5 mr-1.5" />
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-green-400" />
-                      <span className="font-medium">{new Date(snippet?.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="text-xs font-medium">
-                      Updated {new Date(snippet?.updatedAt).toLocaleDateString()}
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-3">
+                    <p className="text-gray-300 mb-8 leading-relaxed font-medium">
+                      {searchTerm || selectedTag 
+                        ? 'Try adjusting your search or filter criteria.'
+                        : 'Get started by creating your first code snippet.'
+                      }
+                    </p>
                     <button
-                      onClick={() => handleEdit(snippet._id)}
-                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-green-500/30 border border-green-400/20"
+                      onClick={() => setShowModal(true)}
+                      className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-orange-500/30 space-x-2 border border-orange-400/20"
                     >
-                      <Edit3 className="h-4 w-4" />
-                      <span>EDIT</span>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(snippet?._id)}
-                      className="px-4 py-2.5 border-2 border-red-500 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-400 rounded-lg text-sm font-bold transition-all duration-200 shadow-lg hover:shadow-red-500/30"
-                    >
-                      <Trash2 className="h-4 w-4" />
+                      <Plus className="h-5 w-5" />
+                      <span>CREATE NEW SNIPPET</span>
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredSnippets.length === 0 && (
-            <div className="text-center py-16">
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-12 border-2 border-gray-700 max-w-md mx-auto shadow-2xl">
-                <Code2 className="h-20 w-20 text-orange-400 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-white mb-3">
-                  NO SNIPPETS FOUND
-                </h3>
-                <p className="text-gray-300 mb-8 leading-relaxed font-medium">
-                  {searchTerm || selectedTag 
-                    ? 'Try adjusting your search or filter criteria.'
-                    : 'Get started by creating your first code snippet.'
-                  }
-                </p>
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-orange-500/30 space-x-2 border border-orange-400/20"
-                >
-                  <Plus className="h-5 w-5" />
-                  <span>CREATE NEW SNIPPET</span>
-                </button>
-              </div>
-            </div>
+              )}
+            </>
           )}
 
           {/* Modal */}
