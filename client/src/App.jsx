@@ -5,18 +5,22 @@ import DashboardPage from './pages/DashboardPage';
 import EditorPage from './pages/EditorPage';
 import PublicSnippetPage from './pages/PublicSnippetPage';
 import CommunityPage from './pages/CommunityPage';
+import PrivateRoute from './components/Layout/PrivateRoute';
 
 function App() {
   return (
     <div className="dark">
       <Router>
         <Routes>
+          {/* Public Route */}
           <Route path="/" element={<LandingPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/community" element={<CommunityPage />} />
-          <Route path="/editor" element={<EditorPage />} />
-          <Route path="/editor/:sid" element={<EditorPage />} />
-          <Route path="/snippet/:sid" element={<PublicSnippetPage />} />
+
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+          <Route path="/community" element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
+          <Route path="/editor" element={<PrivateRoute><EditorPage /></PrivateRoute>} />
+          <Route path="/editor/:sid" element={<PrivateRoute><EditorPage /></PrivateRoute>} />
+          <Route path="/snippet/:sid" element={<PrivateRoute><PublicSnippetPage /></PrivateRoute>} />
         </Routes>
       </Router>
     </div>
